@@ -4,6 +4,7 @@ const Router = require('koa-router')
 const views = require('koa-views')
 const bodyparser = require('koa-bodyparser')
 const koaStatic = require('koa-static')
+const Db = require('./module/db')
 
 const app = new Koa()
 const router = new Router()
@@ -30,16 +31,19 @@ router.get('/bbb', async (ctx) => {
   ctx.body = '/bbb'
 })
 router.get('/ccc', async (ctx) => {
-  await ctx.render('index', { list: [1, 2, 3, 4, 5, 6] })
+  const data = await Db.find('user')
+
+  await ctx.render('index', { list: data })
 })
 router.post('/addUser', async (ctx) => {
   ctx.body = ctx.request.body
 })
 
+app.use(bodyparser())
+app.use(koaStatic(path.join(__dirname, './static'))) // 静态资源中间件,可以配置多个
+
 app.use(router.routes())
 app.use(router.allowedMethods())
-app.use(bodyparser())
-app.use(koaStatic(__dirname + '/static')) // 静态资源中间件,可以配置多个
 
 app.listen(3000, () => {
   console.log('http://localhost:3000')

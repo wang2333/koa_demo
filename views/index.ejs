@@ -13,10 +13,20 @@
     width: 100px;
     text-align: right;
   }
+
+  ul {
+    max-height: 200px;
+    overflow: auto;
+    width: 300px;
+  }
 </style>
 
 <body>
-
+  <ul>
+    <% list.forEach(item=>{ %>
+    <li><%= item.name %></li>
+    <%})%>
+  </ul>
   <form action="/addUser" method="post">
     <div>
       <label for="用户名">用户名:</label>
