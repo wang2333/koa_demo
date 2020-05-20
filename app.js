@@ -1,19 +1,13 @@
 const path = require('path')
 const Koa = require('koa')
 const Router = require('koa-router')
-const views = require('koa-views')
+const render = require('koa-art-template')
 const bodyparser = require('koa-bodyparser')
 const koaStatic = require('koa-static')
 const Db = require('./module/db')
 
 const app = new Koa()
 const router = new Router()
-
-app.use(
-  views(path.join(__dirname, './views'), {
-    extension: 'ejs',
-  })
-)
 
 // 错误处理中间件
 app.use(async (ctx, next) => {
@@ -32,11 +26,34 @@ router.get('/bbb', async (ctx) => {
 })
 router.get('/ccc', async (ctx) => {
   const data = await Db.find('user')
-
   await ctx.render('index', { list: data })
 })
+
 router.post('/addUser', async (ctx) => {
-  ctx.body = ctx.request.body
+  const params = ctx.request.body
+  const json = {
+    name: params.name,
+    password: params.password,
+  }
+  const { result } = await Db.insert('user', json)
+  try {
+    if (result.ok == 1) {
+      ctx.body = '新增成功'
+      ctx.redirect('/ccc')
+    }
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+router.post('/updateUser', async (ctx) => {
+  const { result } = await Db.remove('user', { name: '123' })
+
+  if (result.ok == 1) {
+    ctx.body = '新增成功'
+  } else {
+    ctx.body = result
+  }
 })
 
 app.use(bodyparser())
@@ -44,6 +61,11 @@ app.use(koaStatic(path.join(__dirname, './static'))) // 静态资源中间件,�
 
 app.use(router.routes())
 app.use(router.allowedMethods())
+
+render(app, {
+  root: path.join(__dirname, 'views'),
+  extname: '.html',
+})
 
 app.listen(3000, () => {
   console.log('http://localhost:3000')

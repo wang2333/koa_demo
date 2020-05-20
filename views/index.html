@@ -23,9 +23,9 @@
 
 <body>
   <ul>
-    <% list.forEach(item=>{ %>
-    <li><%= item.name %></li>
-    <%})%>
+    {{each list}}
+    <li>{{$value.name}}---{{$value.password}}</li>
+    {{/each}}
   </ul>
   <form action="/addUser" method="post">
     <div>
