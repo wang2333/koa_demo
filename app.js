@@ -5,6 +5,7 @@ const render = require('koa-art-template')
 const bodyparser = require('koa-bodyparser')
 const koaStatic = require('koa-static')
 const Db = require('./module/db')
+const Util = require('./module/Util')
 
 const app = new Koa()
 const router = new Router()
@@ -18,12 +19,26 @@ app.use(async (ctx, next) => {
   }
 })
 
+router.get('/request', async (ctx) => {
+  try {
+    let res = await Util.request()
+    let video = await Util.getVideoUrl(res.data[1].room_id)
+    ctx.body = {
+      video
+    }
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 router.get('/aaa', async (ctx) => {
   ctx.body = '/aaa'
 })
+
 router.get('/bbb', async (ctx) => {
   ctx.body = '/bbb'
 })
+
 router.get('/ccc', async (ctx) => {
   const data = await Db.find('user')
   await ctx.render('index', { list: data })
